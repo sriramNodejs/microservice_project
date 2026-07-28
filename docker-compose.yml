@@ -1,0 +1,35 @@
+version: '3.8'
+
+# to start the first time use   docker compose up -d
+# to stop the container use   docker compose down
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   # AMQP port for producers and consumers
+      - "15672:15672"   # web UI acess portal
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_project
+    restart: unless-stopped
+    ports:
+      - "27019:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=secretpassword
+    volumes:
+      - mongo_data:/data/db
+
+volumes: 
+  mongo_data:

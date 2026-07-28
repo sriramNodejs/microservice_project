@@ -1,0 +1,123 @@
+This is an E-commerce application
+
+we will implement Microservices pattern (Request - Reply pattern)
+and it is a service layer architecture 
+
+
+Architecture 
+1. HLD (High Level Design ) 
+2. LLD (Low Level Design )
+
+HLD 
+
+It basically talks about the Project High Level Components 
+    Software Or RtE (run time environment (NodeJS)), Framework (ExpressJS), 
+    where we can deploy (AWS EC2 Instance)
+    Reverse Proxy (Nginx)
+    SSL Certificates (CertBot (Python Library)) https://
+    Message Brokers (Rabbit MQ)
+    For Database (MongoDB)
+    For Containerization (Docker)
+    For CI/CD (Contineous Integration/ Contineous Delivery) -> Github Actions
+    For Process Managing we will use PM2
+    For Frontend we can use React
+    Testing with Jest
+
+    
+    Tools 
+    For Testing Postman 
+    Git 
+    Github for repo
+    VS Code for Development IDE
+
+
+LLD 
+    npm packages 
+    1. Express
+    2. Dotenv
+    3. Mongoose
+    4. Validation -> Express-validator
+    5. Session Management -> JWT(JsonWebToken)
+    6. Passwords -> Bcrypt
+    7. Routing
+    8. Middlewares
+    9. Stripe for Payment integration (webhook)
+    10. Logging (winston - Morgan)
+    11. Rate Limiting 
+    12. Sanitizing (Helmet, Express-mongo-sanitize)
+    13. Mail sending (nodemailer)
+    14. File Sending (express-fileupload)
+    15. CRON JOBs
+
+
+
+
+Architecture
+
+Mongodb -> 27017
+RabbitMQ -> 5672
+
+API - Gateway -> 
+Product Service
+User Service 
+Order Server
+
+These all are individual Docker containers 
+
+/user/signup ->  first it will go to API-Gateway   =>  /user means -> redirect to user service -> user service process this Request -> return something -> API Gateway Accepts and give the proper response 
+
+
+
+DB Design -> 
+
+User (Collection) -> Schema 
+1. Full Name
+2. Email
+3. Password
+4. Phone
+5. Address (Referencing)
+6. Profile Picture
+7. Gender
+8. Roles ['Admin', 'Seller', 'Buyer']
+
+For Multiple Documents we can use 2 ways (Ex. Address)
+1. Referencing  (we will store address in separate Collection along with User ID)
+2. Embedding (In user collection we can store array of Addresses)
+
+
+Address (Collection) -> Schema 
+1. House No/Flat No/Building
+2. Address 2 (Landmark)
+3. Address 3 (Optional)
+4. City
+5. State
+6. PinCode
+7. Phone number
+8. User ID
+
+Product (Collection) -> Schema 
+1. Product Name
+2. Price
+3. Description
+4. Photos 
+5. Category
+6. Reviews (Referencing)
+7. Size 
+8. Color
+9. Seller ID
+
+Reviews 
+1. Rating (1-5)
+2. Description
+3. Photos, Videos
+
+
+Orders (Collection) -> Schema 
+1. User ID 
+2. Product ID
+3. Address (Address ID)
+4. Payment Method (ID)
+6. Recepit
+7. Status (Enum)
+8. Quantity
+9. 
