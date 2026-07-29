@@ -121,3 +121,43 @@ Orders (Collection) -> Schema
 7. Status (Enum)
 8. Quantity
 9. 
+
+
+// Applications Styles
+
+1. Monolithic 
+
+2. Microservices 
+
+
+1. Monolithic application 
+
+    - All the components(routes, controllers, services) are tightly coupled and run as a single service.
+    - Easier to develop and deploy initially.
+    - Can become difficult to manage as the application grows(if the users are more or Technology is increasing).
+    - Scaling requires scaling the entire application.
+
+
+2. Microservice Application
+
+    - Different services are deployed in different applications
+    - Each serivice scaled Individually
+
+
+
+
+Different Architecture of applications
+
+1. Service Layer Architecture  (UI is separated from Backend, (They communicate with REST APIs))
+2. MVC Architecture (Model View Controller)
+In MVC (UI (frontend) is tightly coupled with Backend)
+
+
+when your server will get a Request -> (Service Layer Flow)
+
+Routes -> controller -> Service -> Database -> Service -> Controller -> Response to Caller  (REST API)
+
+
+In MVC -> 
+Caller -> Routes -> UI (Rendering) -> Controller -> Database  -> UI(Rendering )
+
