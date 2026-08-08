@@ -1,0 +1,6 @@
+After login 
+
+application will give tokens
+
+1. access token (smaller duration (15 minutes, 1 day, or 1 hour))
+2. refresh token (longer duration (5 days, 10days, 1 monthl))
