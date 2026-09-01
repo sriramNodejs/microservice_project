@@ -84,6 +84,40 @@ const userService = {
     };
   },
 
+  updateProfile: async (userId, body) => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new AppError("User Not found with this email", 404);
+    }
+
+    await User.updateOne({ _id: user.id }, body, { new: true });
+    // user.phone = body.phone;
+    // user.gender = body.gender;
+
+    await user.save();
+
+    return {
+      success: true,
+      message: "User profile updated successfully",
+    };
+  },
+
+  deleteUser: async (userId) => {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new AppError("User Not found with this email", 404);
+    }
+
+    await User.deleteOne({ _id: user.id });
+
+    return {
+      success: true,
+      message: "User deleted successfully",
+    };
+  },
+
   forgotPassword: async (body) => {
     const { email } = body;
 

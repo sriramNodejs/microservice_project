@@ -1,11 +1,13 @@
 const express = require('express');
 const userRoutes = require('./routes/userRoutes');
+const addressRoutes = require('./routes/addressRoutes');
 const app = express();
 
 
 app.use(express.json());
 
-app.use('/auth', userRoutes)
+app.use('/auth', userRoutes);
+app.use('/address', addressRoutes);
 
 
 // Global error handler

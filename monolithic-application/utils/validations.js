@@ -83,6 +83,108 @@ const validationRules = {
       .isLength({ min: 8 })
       .withMessage("New Password must be at least 8 characters"),
   ],
+
+  createAddressValidation: [
+    body("houseNo")
+      .trim()
+      .notEmpty()
+      .withMessage("House No/Flat No/Building is required")
+      .isLength({ max: 100 })
+      .withMessage("House No cannot exceed 100 characters"),
+
+    body("addressLine2")
+      .trim()
+      .notEmpty()
+      .withMessage("Address Line 2 is required")
+      .isLength({ max: 255 })
+      .withMessage("Address Line 2 cannot exceed 255 characters"),
+
+    body("addressLine3")
+      .optional()
+      .trim()
+      .isLength({ max: 255 })
+      .withMessage("Address Line 3 cannot exceed 255 characters"),
+
+    body("city")
+      .trim()
+      .notEmpty()
+      .withMessage("City is required")
+      .isLength({ max: 100 })
+      .withMessage("City cannot exceed 100 characters"),
+
+    body("state")
+      .trim()
+      .notEmpty()
+      .withMessage("State is required")
+      .isLength({ max: 100 })
+      .withMessage("State cannot exceed 100 characters"),
+
+    body("pinCode")
+      .trim()
+      .notEmpty()
+      .withMessage("Pin Code is required")
+      .matches(/^[1-9][0-9]{5}$/)
+      .withMessage("Invalid Pin Code"),
+
+    body("phoneNumber")
+      .trim()
+      .notEmpty()
+      .withMessage("Phone Number is required")
+      .isMobilePhone("en-IN")
+      .withMessage("Invalid Phone Number"),
+  ],
+
+  updateAddressValidation: [
+    body("houseNo")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("House No cannot be empty")
+      .isLength({ max: 100 })
+      .withMessage("House No cannot exceed 100 characters"),
+
+    body("addressLine2")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("Address Line 2 cannot be empty")
+      .isLength({ max: 255 })
+      .withMessage("Address Line 2 cannot exceed 255 characters"),
+
+    body("addressLine3")
+      .optional()
+      .trim()
+      .isLength({ max: 255 })
+      .withMessage("Address Line 3 cannot exceed 255 characters"),
+
+    body("city")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("City cannot be empty")
+      .isLength({ max: 100 })
+      .withMessage("City cannot exceed 100 characters"),
+
+    body("state")
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage("State cannot be empty")
+      .isLength({ max: 100 })
+      .withMessage("State cannot exceed 100 characters"),
+
+    body("pinCode")
+      .optional()
+      .trim()
+      .matches(/^[1-9][0-9]{5}$/)
+      .withMessage("Invalid Pin Code"),
+
+    body("phoneNumber")
+      .optional()
+      .trim()
+      .isMobilePhone("en-IN")
+      .withMessage("Invalid Phone Number"),
+  ],
 };
 
 const validate = (req, res, next) => {
