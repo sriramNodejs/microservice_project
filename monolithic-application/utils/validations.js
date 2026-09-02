@@ -1,4 +1,4 @@
-const { body, validationResult } = require("express-validator");
+const { body, validationResult, param } = require("express-validator");
 
 const validationRules = {
   signup: [
@@ -135,6 +135,12 @@ const validationRules = {
   ],
 
   updateAddressValidation: [
+    param("addressId")
+      .notEmpty()
+      .withMessage("Address ID is required")
+      .bail()
+      .isMongoId()
+      .withMessage("Invalid Address ID"),
     body("houseNo")
       .optional()
       .trim()
