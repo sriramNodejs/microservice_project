@@ -4,13 +4,23 @@ const bcrypt = require("bcryptjs");
 const Product = require("../models/Product");
 const Address = require("../models/Address");
 const Order = require("../models/Order");
+const User = require("../models/User");
 const moment = require("moment");
+const stripe = require("../utils/stripe");
 
 const orderService = {
   placeOrder: async (userId, body) => {
-    let { productId, quantity, addressId } = body;
+    let { productId, quantity = 1, addressId } = body;
 
     console.log(body, "test");
+
+    const user = await User.findById(userId, {
+      stripeCustomerId: 1,
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
 
     const product = await Product.findById(productId);
     if (!product) {
@@ -30,25 +40,52 @@ const orderService = {
 
     // create payment Link
 
-    // Mocking Payment Done
+    const session = await stripe.checkout.sessions.create({
+      customer: user.stripeCustomerId,
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: product.name,
+            },
+            unit_amount: product.price * 100, // it will take in Cents
+          },
+          quantity: quantity,
+        },
+      ],
 
-    // Decrease the product quantity
-    await Product.updateOne({ _id: productId }, { $inc: { stock: -quantity } });
-
-    // create order Record
-    await Order.create({
-      user: userId,
-      productId: productId,
-      sellerId: product.sellerId,
-      quantity,
-      addressId: addressId,
-      status: "placed",
+      success_url: `http://localhost:3000/orders`,
+      cancel_url: `http://localhost:3000/cart`,
     });
+
+    // Mocking Payment Done
 
     return {
       success: true,
       message: "Order placed successfully",
+      paymentUrl: session.url,
     };
+
+    // // Decrease the product quantity
+    // await Product.updateOne({ _id: productId }, { $inc: { stock: -quantity } });
+
+    // // create order Record
+    // await Order.create({
+    //   user: userId,
+    //   productId: productId,
+    //   sellerId: product.sellerId,
+    //   quantity,
+    //   addressId: addressId,
+    //   status: "placed",
+    // });
+
+    // return {
+    //   success: true,
+    //   message: "Order placed successfully",
+    // };
   },
 
   getUserOrders: async (userId, query) => {

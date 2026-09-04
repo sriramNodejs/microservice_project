@@ -4,3 +4,25 @@ application will give tokens
 
 1. access token (smaller duration (15 minutes, 1 day, or 1 hour))
 2. refresh token (longer duration (5 days, 10days, 1 monthl))
+
+
+
+
+
+// Webhooks 
+
+Server server communication
+
+
+
+you have placed a order -> amazon -> Fedex -> seller update the tracking id or AWB number 
+
+
+amazon will expose a api -> amazon.com/api/fedex-webhook -> 
+
+From seller to you -> 4 different location 
+
+in 1st location 
+2nd 
+
+4th 

@@ -3,6 +3,8 @@ const User = require("../models/User");
 const RefreshToken = require("../models/RefreshTokens");
 const bcrypt = require("bcryptjs");
 const saltRounds = Number(process.env.SALT_ROUNDS);
+const stripe = require("../utils/stripe");
+
 const {
   generateRefreshToken,
   generateAccessToken,
@@ -28,6 +30,14 @@ const userService = {
       password: hashedPassword,
       phone,
     });
+
+    const customer = await stripe.customers.create({
+      email: email,
+      phone: phone,
+    });
+
+    newUser.stripeCustomerId = customer.id;
+    await newUser.save();
 
     return {
       success: true,
