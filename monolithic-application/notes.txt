@@ -26,3 +26,18 @@ in 1st location
 2nd 
 
 4th 
+
+
+// install Stripe globally
+
+npm i -g stripe
+
+
+then in a terminal 
+
+-> stripe login 
+
+
+after authentication we have to 
+
+stripe listen --forward-to localhost:3000/webhook (your webhook local url)

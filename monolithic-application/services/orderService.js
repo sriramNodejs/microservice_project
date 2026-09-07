@@ -40,6 +40,19 @@ const orderService = {
 
     // create payment Link
 
+    await Product.updateOne({ _id: productId }, { $inc: { stock: -quantity } });
+
+    const orderData = await Order.create({
+      user: userId,
+      productId: productId,
+      sellerId: product.sellerId,
+      quantity,
+      addressId: addressId,
+      status: "pending",
+    });
+
+    console.log("Order Created", orderData._id.toString());
+
     const session = await stripe.checkout.sessions.create({
       customer: user.stripeCustomerId,
       payment_method_types: ["card"],
@@ -56,6 +69,18 @@ const orderService = {
           quantity: quantity,
         },
       ],
+      // attach orderId to client reference id
+      client_reference_id: orderData._id.toString(),
+
+      metadata: {
+        order_id: orderData._id.toString(),
+      },
+
+      payment_intent_data: {
+        metadata: {
+          order_id: orderData._id.toString(),
+        },
+      },
 
       success_url: `http://localhost:3000/orders`,
       cancel_url: `http://localhost:3000/cart`,

@@ -4,7 +4,13 @@ const addressRoutes = require("./routes/addressRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 
+const stripeWebhookListner = require("./utils/stripeWebhookListner");
+
 const app = express();
+
+// stripe webhook 
+
+app.post('/webhook', express.raw({type: 'application/json'}), stripeWebhookListner)
 
 app.use(express.json());
 

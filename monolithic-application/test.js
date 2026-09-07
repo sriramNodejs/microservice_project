@@ -12,7 +12,7 @@ async function createStripeUsers() {
   //     stripeCustomerId: { $exists: false, $ne: null },
   //   });
 
-  const users = await User.find({ stripeCustomerId: { $eq: null } });
+  const users = await User.find({});
   console.log(users);
 
   const userPromises = [];
