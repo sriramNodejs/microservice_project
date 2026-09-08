@@ -37,6 +37,11 @@ const stripeWebhookListner = async (req, res, next) => {
       break;
 
     case "payment_intent.payment_failed":
+      console.log(
+        event.data.object.last_payment_error.decline_code,
+        "decline reason",
+      );
+
       const orderData = await Order.findByIdAndUpdate(
         { _id: orderId },
         { status: "payment_failed" },

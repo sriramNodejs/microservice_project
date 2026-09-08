@@ -3,6 +3,7 @@ const userRoutes = require("./routes/userRoutes");
 const addressRoutes = require("./routes/addressRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 const stripeWebhookListner = require("./utils/stripeWebhookListner");
 
@@ -18,6 +19,7 @@ app.use("/auth", userRoutes);
 app.use("/address", addressRoutes);
 app.use("/product", productRoutes);
 app.use("/order", orderRoutes);
+app.use("/review", reviewRoutes)
 
 app.get("/orders", (req, res, next) => {
   res.send(`
