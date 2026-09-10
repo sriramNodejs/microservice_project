@@ -5,21 +5,38 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 
+const path = require("path");
+
+const fileUpload = require("express-fileupload");
+
 const stripeWebhookListner = require("./utils/stripeWebhookListner");
 
 const app = express();
 
-// stripe webhook 
+// stripe webhook
 
-app.post('/webhook', express.raw({type: 'application/json'}), stripeWebhookListner)
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhookListner,
+);
 
 app.use(express.json());
+
+app.use(fileUpload());
+
+app.use(
+  "/uploads",
+  express.static(
+    path.join(__dirname, `${process.env.UPLOAD_FOLDER || "uploads"}`),
+  ),
+);
 
 app.use("/auth", userRoutes);
 app.use("/address", addressRoutes);
 app.use("/product", productRoutes);
 app.use("/order", orderRoutes);
-app.use("/review", reviewRoutes)
+app.use("/review", reviewRoutes);
 
 app.get("/orders", (req, res, next) => {
   res.send(`

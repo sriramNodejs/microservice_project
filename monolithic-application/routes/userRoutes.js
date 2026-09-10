@@ -2,6 +2,7 @@ const router = require("express").Router();
 const userController = require("../controllers/userController");
 const { validate, validationRules } = require("../utils/validations");
 const { accessTokenMiddleware } = require("../utils/tokenHelper");
+const { fileUploadMiddleware } = require("../utils/helper");
 
 // auth routes
 router.post("/signup", validationRules.signup, validate, userController.signup);
@@ -34,7 +35,7 @@ router.put(
 // // user routes
 router.get("/profile", accessTokenMiddleware, userController.profile);
 
-router.put("/profile", accessTokenMiddleware, userController.updateProfile);
+router.put("/profile", accessTokenMiddleware, fileUploadMiddleware ,userController.updateProfile);
 
 router.delete("/profile", accessTokenMiddleware, userController.deleteUser);
 

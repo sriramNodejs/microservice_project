@@ -41,3 +41,19 @@ then in a terminal
 after authentication we have to 
 
 stripe listen --forward-to localhost:3000/webhook (your webhook local url)
+
+
+
+
+Three types of user 
+
+
+1. User (customer )
+2. Seller 
+3. Admin 
+
+
+After seller and admin , 
+We will biforcate our application (We will split our application )
+
+After that Deployment 

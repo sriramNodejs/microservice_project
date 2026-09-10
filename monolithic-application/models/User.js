@@ -6,6 +6,10 @@ const userSchema = new Schema(
       type: String,
       trim: true,
     },
+    profilePicture: {
+      type: String,
+      default: null,
+    },
     email: {
       type: String,
       required: [true, "Email is required"],
