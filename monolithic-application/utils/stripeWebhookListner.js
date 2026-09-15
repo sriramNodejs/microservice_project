@@ -26,12 +26,35 @@ const stripeWebhookListner = async (req, res, next) => {
   }
 
   console.log(event.type);
+  console.log(paymentIntent, "paymentIntent");
 
   // Handle the event
   switch (event.type) {
     case "payment_intent.succeeded":
-      console.log(orderId, "order id");
       await Order.updateOne({ _id: orderId }, { status: "confirmed" });
+      // you can send mail
+
+      break;
+
+    case "checkout.session.completed":
+      await Order.updateOne(
+        { _id: orderId },
+        {
+          stripePaymentIntentId: paymentIntent.payment_intent,
+          stripeSessionId: paymentIntent.id,
+        },
+      );
+      // you can send mail
+
+      break;
+
+    case "charge.updated":
+      await Order.updateOne(
+        { _id: orderId },
+        {
+          stripeReceptUrl: paymentIntent.receipt_url,
+        },
+      );
       // you can send mail
 
       break;

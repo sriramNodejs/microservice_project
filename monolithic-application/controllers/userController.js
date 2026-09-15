@@ -9,7 +9,14 @@ const userController = {
   }),
 
   login: catchAsync(async (req, res, next) => {
-    const response = await userService.login(req, req.body);
+    const role =
+      req.url === "/login"
+        ? "user"
+        : req.url === "/seller-login"
+          ? "seller"
+          : "admin";
+    console.log(role);
+    const response = await userService.login(req, req.body, role);
     res.status(200).json(response);
   }),
 
@@ -35,6 +42,7 @@ const userController = {
   }),
 
   profile: catchAsync(async (req, res, next) => {
+    console.log(req.user);
     const response = await userService.profile(req.user.id);
     res.status(200).json(response);
   }),

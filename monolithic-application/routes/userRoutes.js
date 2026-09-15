@@ -1,13 +1,30 @@
 const router = require("express").Router();
 const userController = require("../controllers/userController");
 const { validate, validationRules } = require("../utils/validations");
-const { accessTokenMiddleware } = require("../utils/tokenHelper");
+const { accessTokenMiddleware, hasRoleCheck } = require("../utils/tokenHelper");
 const { fileUploadMiddleware } = require("../utils/helper");
 
 // auth routes
 router.post("/signup", validationRules.signup, validate, userController.signup);
 
+// router.post("/seller-signup", validationRules.signup, validate, userController.signup);
+
 router.post("/login", validationRules.login, validate, userController.login);
+
+router.post(
+  "/seller-login",
+  validationRules.login,
+  validate,
+  userController.login,
+);
+
+router.post(
+  "/admin-login",
+  validationRules.login,
+  validate,
+  userController.login,
+);
+
 // router.post('/logout');
 
 router.post(
@@ -33,11 +50,27 @@ router.put(
 );
 
 // // user routes
-router.get("/profile", accessTokenMiddleware, userController.profile);
+router.get(
+  "/profile",
+  accessTokenMiddleware,
+  hasRoleCheck(["seller", "user"]),
+  userController.profile,
+);
 
-router.put("/profile", accessTokenMiddleware, fileUploadMiddleware ,userController.updateProfile);
+router.put(
+  "/profile",
+  accessTokenMiddleware,
+  hasRoleCheck(["seller", "user"]),
+  fileUploadMiddleware,
+  userController.updateProfile,
+);
 
-router.delete("/profile", accessTokenMiddleware, userController.deleteUser);
+router.delete(
+  "/profile",
+  accessTokenMiddleware,
+  hasRoleCheck(["admin"]),
+  userController.deleteUser,
+);
 
 // router.post('/refresh-token', );
 

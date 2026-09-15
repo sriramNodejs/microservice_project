@@ -3,16 +3,17 @@ const jwt = require("jsonwebtoken");
 const ACCESS_TOKEN_EXPIRY = "1d";
 const REFRESH_TOKEN_EXPIRY = "7d";
 
-const generateAccessToken = (user) => {
+const generateAccessToken = (user, role) => {
   return jwt.sign(
     {
       id: user._id,
       email: user.email,
+      role,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
       expiresIn: ACCESS_TOKEN_EXPIRY,
-    }
+    },
   );
 };
 
@@ -24,10 +25,9 @@ const generateRefreshToken = (user) => {
     process.env.REFRESH_TOKEN_SECRET,
     {
       expiresIn: REFRESH_TOKEN_EXPIRY,
-    }
+    },
   );
 };
-
 
 const accessTokenMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -41,10 +41,7 @@ const accessTokenMiddleware = (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.ACCESS_TOKEN_SECRET
-    );
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     req.user = decoded;
 
@@ -56,8 +53,19 @@ const accessTokenMiddleware = (req, res, next) => {
   }
 };
 
+const hasRoleCheck = (roles) => (req, res, next) => {
+  if (!roles.includes(req.user.role)) {
+    return res.status(403).json({
+      message: "Insufficient permissions",
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
-  accessTokenMiddleware
+  accessTokenMiddleware,
+  hasRoleCheck
 };

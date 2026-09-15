@@ -33,9 +33,31 @@ const orderSchema = new Schema(
       required: true,
     },
 
+    stripeReceptUrl: {
+      type: String,
+      default: null,
+    },
+
+    stripePaymentIntentId: {
+      type: String,
+      default: null,
+    },
+    stripeSessionId: {
+      type: String,
+      default: null,
+    },
+
     status: {
       type: String,
-      enum: ["pending", "payment_failed" ,"placed", "confirmed", "shipped", "delivered", "cancelled"],
+      enum: [
+        "pending",
+        "payment_failed",
+        "placed",
+        "confirmed",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
       default: "pending",
     },
   },

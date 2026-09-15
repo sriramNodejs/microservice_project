@@ -46,7 +46,7 @@ const userService = {
     };
   },
 
-  login: async (req, body) => {
+  login: async (req, body, role) => {
     const { email, password } = body;
 
     const user = await User.findOne({ email: email.toLowerCase() }).lean();
@@ -61,7 +61,7 @@ const userService = {
       throw new AppError("Invalid Password", 400);
     }
 
-    const accessToken = generateAccessToken(user);
+    const accessToken = generateAccessToken(user, role);
     const refreshToken = generateRefreshToken(user);
 
     await RefreshToken.create({

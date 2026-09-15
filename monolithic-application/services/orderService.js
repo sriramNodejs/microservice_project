@@ -143,7 +143,8 @@ const orderService = {
   getOneUserOrder: async (orderId) => {
     const order = await Order.findById(orderId)
       .populate("productId")
-      .populate("addressId");
+      .populate("addressId")
+      .lean();
 
     if (!order) {
       throw new AppError("Order not found", 404);
