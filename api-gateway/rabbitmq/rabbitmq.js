@@ -13,10 +13,6 @@ async function connectRabbitMQ() {
     console.log("Rabbitmq Connected");
     channel = await connection.createChannel();
 
-    await channel.assertQueue(PRODUCT_QUEUE);
-    await channel.assertQueue(ORDER_QUEUE);
-    await channel.assertQueue(USER_QUEUE);
-
     return channel;
   } catch (error) {
     console.error(`error in connecting rabbitmq`, error);

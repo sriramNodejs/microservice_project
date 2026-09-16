@@ -1,50 +1,40 @@
-const express = require('express');
-require('dotenv').config();
+const express = require("express");
+require("dotenv").config();
+const createRpcClient = require("./rabbitmq/rpcClient");
 
 const PORT = process.env.PORT || 3000;
 
-const { connectRabbitMQ, getChannel, ORDER_QUEUE, PRODUCT_QUEUE, USER_QUEUE } = require('./rabbitmq');
-const {createBufferData} = require('./utils/helpers')
+const { connectRabbitMQ } = require("./rabbitmq/rabbitmq");
+
+const productRoutes = require("./routes/product.routes");
+const orderRoutes = require("./routes/order.routes");
+const userRoutes = require("./routes/user.routes");
 
 const app = express();
 
-app.use(express.json()); 
+app.use(express.json());
 
-connectRabbitMQ();
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message ?? "internal server error",
+  });
+});
 
+async function start() {
+  await connectRabbitMQ();
 
-app.post('/products', async(req, res) => {
-    const channel = getChannel();
+  const rpcClient = await createRpcClient();
 
-    channel.sendToQueue(PRODUCT_QUEUE, createBufferData(req.body))
+  app.locals.rpcClient = rpcClient;
 
-    res.json({
-        message: 'Send to Product Service'
-    })
-})
+  app.use("/products", productRoutes);
+  app.use("/users", userRoutes);
+  app.use("/orders", orderRoutes);
 
-app.post('/orders', async(req, res) => {
-    const channel = getChannel();
+  app.listen(PORT, () => {
+    console.log(`[API Gateway] is running on ${PORT}`);
+  });
+}
 
-    channel.sendToQueue(ORDER_QUEUE, createBufferData(req.body))
-
-    res.json({
-        message: 'Send to Order Service'
-    })
-})
-
-app.post('/users', async(req, res) => {
-    const channel = getChannel();
-
-    channel.sendToQueue(USER_QUEUE, createBufferData(req.body))
-
-    res.json({
-        message: 'Send to Order Service'
-    })
-})
-
-
-
-app.listen(PORT, () => {
-    console.log(`[API Gateway] is running on ${PORT}`)
-})
+start();
