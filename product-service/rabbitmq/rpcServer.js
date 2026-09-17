@@ -1,4 +1,4 @@
-const { getChannel } = require("./rabbitmq");
+const { getChannel } = require("./connection");
 const { createBufferData } = require("../utils/helpers");
 
 async function createRpcServer(queueName, handler) {

@@ -13,6 +13,7 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
+  console.log("hello");
   const response = await req.app.locals.rpcClient.send(PRODUCT_QUEUE, {
     action: "GET_PRODUCT",
     data: req.query,

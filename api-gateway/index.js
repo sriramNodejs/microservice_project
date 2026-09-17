@@ -28,7 +28,7 @@ async function start() {
 
   app.locals.rpcClient = rpcClient;
 
-  app.use("/products", productRoutes);
+  app.use("/product", productRoutes);
   app.use("/users", userRoutes);
   app.use("/orders", orderRoutes);
 
