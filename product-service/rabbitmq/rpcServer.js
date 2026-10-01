@@ -1,5 +1,5 @@
 const { getChannel } = require("./connection");
-const { createBufferData } = require("../utils/helpers");
+const { createBufferData, parseRpcResponse } = require("../utils/helpers");
 
 async function createRpcServer(queueName, handler) {
   const channel = getChannel();
@@ -7,15 +7,38 @@ async function createRpcServer(queueName, handler) {
   await channel.assertQueue(queueName, { durable: true });
 
   channel.consume(queueName, async (msg) => {
-    const request = JSON.parse(msg.content.toString());
+    if (!msg) return;
 
-    const response = await handler(request);
+    const correlationId = msg.properties.correlationId;
+    const replyTo = msg.properties.replyTo;
 
-    channel.sendToQueue(msg.properties.replyTo, createBufferData(response), {
-      coorelationId: msg.properties.coorelationId,
-    });
+    try {
+      const request = parseRpcResponse(msg);
+      const response = await handler(request);
 
-    channel.ack(msg);
+      channel.sendToQueue(replyTo, createBufferData(response), {
+        correlationId,
+        contentType: "application/json",
+      });
+    } catch (error) {
+      console.error(`[RPC Error] ${queueName}:`, error);
+
+      const errorResponse = {
+        success: false,
+        message: error.isOperational ? error.message : "Internal server error",
+      };
+
+      if (error.errorCode) {
+        errorResponse.errorCode = error.errorCode;
+      }
+
+      channel.sendToQueue(replyTo, createBufferData(errorResponse), {
+        correlationId,
+        contentType: "application/json",
+      });
+    } finally {
+      channel.ack(msg);
+    }
   });
 }
 

@@ -1,6 +1,6 @@
 const { randomUUID } = require("crypto");
 const { getChannel } = require("./rabbitmq");
-const { createBufferData } = require("../utils/helpers");
+const { createBufferData, parseRpcResponse } = require("../utils/helpers");
 
 const pendingRequests = {};
 
@@ -15,11 +15,23 @@ async function createRpcClient() {
   channel.consume(
     q.queue,
     (msg) => {
-      const coorelationId = msg.properties.coorelationId;
-      if (pendingRequests[coorelationId]) {
-        pendingRequests[coorelationId](msg.content.toString());
-        delete pendingRequests[coorelationId];
+      if (!msg) return;
+      const correlationId = msg.properties.correlationId;
+
+      const pending = pendingRequests[correlationId];
+      if (!pending) return;
+
+      const response = parseRpcResponse(msg);
+
+      if (response.success === false) {
+        const error = new Error(response.message);
+        error.errorCode = response.errorCode;
+        error.statusCode = response.statusCode || 500;
+        pending.reject(error);
+      } else {
+        pending.resolve(response);
       }
+      delete pendingRequests[correlationId];
     },
     {
       noAck: true,
@@ -28,13 +40,17 @@ async function createRpcClient() {
 
   return {
     send: (queue, message) => {
-      return new Promise((resolve) => {
-        const coorelationId = randomUUID();
-        pendingRequests[coorelationId] = resolve;
+      return new Promise((resolve, reject) => {
+        const correlationId = randomUUID();
+        pendingRequests[correlationId] = {
+          resolve,
+          reject,
+        };
 
         channel.sendToQueue(queue, createBufferData(message), {
-          coorelationId,
+          correlationId,
           replyTo: q.queue,
+          contentType: "application/json",
         });
       });
     },

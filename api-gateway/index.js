@@ -14,13 +14,6 @@ const app = express();
 
 app.use(express.json());
 
-app.use((err, req, res, next) => {
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message ?? "internal server error",
-  });
-});
-
 async function start() {
   await connectRabbitMQ();
 
@@ -31,6 +24,17 @@ async function start() {
   app.use("/product", productRoutes);
   app.use("/users", userRoutes);
   app.use("/orders", orderRoutes);
+
+  app.use((err, req, res, next) => {
+    console.error("[API Gateway Error]", err);
+    res.status(err.statusCode || err.status || 500).json({
+      success: false,
+      message: err.message ?? "internal server error",
+      ...(err.errorCode && {
+        errorCode: err.errorCode,
+      }),
+    });
+  });
 
   app.listen(PORT, () => {
     console.log(`[API Gateway] is running on ${PORT}`);

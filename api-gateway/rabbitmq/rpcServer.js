@@ -12,7 +12,7 @@ async function createRpcServer(queueName, handler) {
     const response = await handler(request);
 
     channel.sendToQueue(msg.properties.replyTo, createBufferData(response), {
-      coorelationId: msg.properties.coorelationId,
+      correlationId: msg.properties.correlationId,
     });
 
     channel.ack(msg);

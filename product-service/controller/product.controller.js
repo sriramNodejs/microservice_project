@@ -11,8 +11,12 @@ async function productHandler(request) {
 
     case "GET_PRODUCT":
       console.log("data", data);
-      data = { userId: "6a772662907f08275da69103", query: {} };
-      return await productService.getAllProducts(data.userId, data.query);
+      // data = { userId: "6a772662907f08275da69103",  };
+      return await productService.getAllProducts(
+        "6a772662907f08275da69103",
+        data,
+      );
+    // return await productService.getAllProducts(data.userId, data.query);
 
     case "GET_PRODUCT_BY_ID":
       return await productService.getOneProduct(data.productId);
