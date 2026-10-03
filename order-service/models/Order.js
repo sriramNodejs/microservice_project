@@ -1,0 +1,70 @@
+const { Schema, model } = require("mongoose");
+
+const orderSchema = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
+    sellerId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+
+    addressId: {
+      type: Schema.Types.ObjectId,
+      ref: "address",
+      required: true,
+    },
+
+    quantity: {
+      type: Number,
+      required: true,
+    },
+
+    productId: {
+      type: Schema.Types.ObjectId,
+      ref: "product",
+      required: true,
+    },
+
+    stripeReceptUrl: {
+      type: String,
+      default: null,
+    },
+
+    stripePaymentIntentId: {
+      type: String,
+      default: null,
+    },
+    stripeSessionId: {
+      type: String,
+      default: null,
+    },
+
+    status: {
+      type: String,
+      enum: [
+        "pending",
+        "payment_failed",
+        "placed",
+        "confirmed",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
+      default: "pending",
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
+
+const Order = model("order", orderSchema);
+module.exports = Order;
