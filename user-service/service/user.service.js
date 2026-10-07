@@ -1,10 +1,11 @@
 const { catchAsync, AppError } = require("../utils/errorHandler");
 const User = require("../models/User");
+const Address = require("../models/Address");
 const RefreshToken = require("../models/RefreshTokens");
 const bcrypt = require("bcryptjs");
 const saltRounds = Number(process.env.SALT_ROUNDS);
 const stripe = require("../utils/stripe");
-const fs = require('fs')
+const fs = require("fs");
 
 const {
   generateRefreshToken,
@@ -46,8 +47,8 @@ const userService = {
     };
   },
 
-  login: async (req, body, role) => {
-    const { email, password } = body;
+  login: async (req, role) => {
+    const { email, password } = req.body;
 
     const user = await User.findOne({ email: email.toLowerCase() }).lean();
 
@@ -68,9 +69,9 @@ const userService = {
       user: user._id,
       token: refreshToken,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      device: req.headers["x-device-name"] || "Unknown Device",
+      device: req.device,
       ip: req.ip,
-      userAgent: req.get("user-agent"),
+      userAgent: req.userAgent,
     });
 
     return {
@@ -88,8 +89,8 @@ const userService = {
       throw new AppError("User Not found", 404);
     }
 
-    if(user.profilePicture){
-      user.profilePicture = `${process.env.NODE_BASE_URL}/${process.env.UPLOAD_FOLDER}/${user.profilePicture}`
+    if (user.profilePicture) {
+      user.profilePicture = `${process.env.NODE_BASE_URL}/${process.env.UPLOAD_FOLDER}/${user.profilePicture}`;
     }
 
     return {
@@ -106,33 +107,32 @@ const userService = {
       throw new AppError("User Not found with this email", 404);
     }
 
-    const updateObj = {}
+    const updateObj = {};
 
-    if(body.name){
-      updateObj.name = body.name
+    if (body.name) {
+      updateObj.name = body.name;
     }
 
-    if(body.gender){
-      updateObj.gender = body.gender
+    if (body.gender) {
+      updateObj.gender = body.gender;
     }
 
-    if(body.uploadedFile){
+    if (body.uploadedFile) {
+      // check the old picture
+      if (user.profilePicture) {
+        const filePath = `${process.cwd()}/${process.env.UPLOAD_FOLDER}/${user.profilePicture}`;
 
-      // check the old picture 
-      if(user.profilePicture){
-        const filePath = `${process.cwd()}/${process.env.UPLOAD_FOLDER}/${user.profilePicture}`
+        console.log(filePath);
 
-        console.log(filePath)
-
-        const isFIleThere = fs.existsSync(filePath)
-        console.log(isFIleThere, 128)
+        const isFIleThere = fs.existsSync(filePath);
+        console.log(isFIleThere, 128);
 
         if (isFIleThere) {
-          fs.unlinkSync(filePath)
+          fs.unlinkSync(filePath);
         }
       }
 
-      updateObj.profilePicture = body.uploadedFile
+      updateObj.profilePicture = body.uploadedFile;
     }
 
     await User.updateOne({ _id: user.id }, updateObj, { new: true });
@@ -295,6 +295,92 @@ const userService = {
         message: "Invalid refresh token",
       });
     }
+  },
+
+  getAddresses: async (userId) => {
+    const addresses = await Address.find({ user: userId });
+
+    return {
+      success: true,
+      message: "Addresses fetched successfully",
+      addresses,
+    };
+  },
+
+  getOneAddress: async (addressId) => {
+    const address = await Address.findById(addressId);
+
+    if (!address) {
+      throw new AppError("Address not found", 404);
+    }
+
+    return {
+      success: true,
+      message: "Address fetched successfully",
+      address,
+    };
+  },
+
+  setDefaultAddress: async (userId, addressId) => {
+    const address = await Address.findById(addressId);
+
+    if (!address) {
+      throw new AppError("Address not found", 404);
+    }
+    await Address.updateMany({ user: userId }, { isDefault: false });
+
+    address.isDefault = true;
+    await address.save();
+
+    return {
+      success: true,
+      message: "Default Address Saved Successfully",
+      address,
+    };
+  },
+
+  createAddress: async (userId, body) => {
+    const address = await Address.create({
+      ...body,
+      user: userId,
+    });
+
+    return {
+      success: true,
+      message: "Address created successfully",
+      address,
+    };
+  },
+
+  updateAddress: async (userId, addressId, body) => {
+    const address = await Address.findOne({ user: userId, _id: addressId });
+
+    if (!address) {
+      throw new AppError("Address not found", 404);
+    }
+
+    Object.assign(address, body);
+    await address.save(); // update operation
+
+    return {
+      success: true,
+      message: "Address updated successfully",
+      address,
+    };
+  },
+
+  deleteAddress: async (addressId) => {
+    const address = await Address.findByIdAndDelete(addressId);
+
+    if (!address) {
+      throw new AppError("Address not found", 404);
+    }
+
+    return {
+      success: true,
+      message: "Address deleted successfully",
+      address,
+    };
   },
 };
 

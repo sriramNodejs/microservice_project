@@ -9,7 +9,7 @@ async function userHandler(request) {
 
     case "SIGN_IN":
       const { req, role } = data;
-      return await userService.login(req, req.body, role);
+      return await userService.login(req, role);
 
     case "FORGOT_PASSWORD":
       return await userService.forgotPassword(data);
@@ -34,6 +34,30 @@ async function userHandler(request) {
 
     case "DELETE_USER":
       return await userService.deleteUser(data.id);
+
+    // Address handling
+
+    case "GET_ADDRESSES":
+      return await userService.getAddresses(data.userId);
+
+    case "GET_ONE_ADDRESS":
+      return await userService.getOneAddress(data.addressId);
+
+    case "CREATE_ADDRESS":
+      return await userService.createAddress(data.userId, data.body);
+
+    case "UPDATE_ADDRESS":
+      return await userService.updateAddress(
+        data.userId,
+        data.addressId,
+        data.body,
+      );
+
+    case "DELETE_ADDRESS":
+      return await userService.deleteAddress(data.addressId);
+
+    case "SET_DEFAULT_ADDRESS":
+      return await userService.setDefaultAddress(data.userId, data.addressId);
 
     default:
       return {
