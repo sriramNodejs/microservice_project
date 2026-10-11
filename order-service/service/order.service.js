@@ -53,7 +53,7 @@ const orderService = {
 
     const session = await stripe.checkout.sessions.create({
       customer: user.stripeCustomerId,
-      payment_method_types: ["card"],
+      // payment_method_types: ["card"],
       mode: "payment",
       line_items: [
         {
@@ -80,8 +80,8 @@ const orderService = {
         },
       },
 
-      success_url: `http://localhost:3000/orders`,
-      cancel_url: `http://localhost:3000/cart`,
+      success_url: `${process.env.SERVER_URL}/orders`,
+      cancel_url: `${process.env.SERVER_URL}/cart`,
     });
 
     // Mocking Payment Done

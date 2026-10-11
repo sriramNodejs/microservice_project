@@ -8,11 +8,19 @@ const { dbConnect } = require("./utils/dbConnect");
 
 const { orderHandler } = require("./controller/order.controller");
 
+const stripeWebhookListner = require("./utils/stripeWebhookListner");
+
 const app = express();
 const PORT = process.env.PORT || 3003;
 
 async function start() {
   dbConnect();
+
+  app.post(
+    "/webhook",
+    express.raw({ type: "application/json" }),
+    stripeWebhookListner,
+  );
 
   app.use(express.json());
 
@@ -24,6 +32,18 @@ async function start() {
     res.json({
       message: "Order Service is running",
     });
+  });
+
+  app.get("/orders", (req, res, next) => {
+    res.send(`
+    <h1>Your orders</h1>
+`);
+  });
+
+  app.get("/cart", (req, res, next) => {
+    res.send(`
+    <h1>Your Cart here</h1>
+`);
   });
 
   app.use((err, req, res, next) => {

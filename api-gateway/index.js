@@ -34,11 +34,12 @@ async function start() {
 
   app.use("/product", productRoutes);
   app.use("/auth", userRoutes);
-  app.use("/orders", orderRoutes);
+  app.use("/order", orderRoutes);
 
   app.use((err, req, res, next) => {
     console.error("[API Gateway Error]", err);
     console.log(err, "err");
+    console.log(err.statusCode, "hello");
     res.status(err.statusCode || err.status || 500).json({
       success: false,
       message: err.message ?? "internal server error",

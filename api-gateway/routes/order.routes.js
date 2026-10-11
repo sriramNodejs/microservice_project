@@ -18,7 +18,7 @@ router.post("/placeOrder", accessTokenMiddleware, async (req, res) => {
   res.json(response);
 });
 
-router.post("/user-orders", accessTokenMiddleware, async (req, res) => {
+router.get("/user-orders", accessTokenMiddleware, async (req, res) => {
   const data = {
     id: req.user.id,
     query: req.query,
@@ -31,9 +31,9 @@ router.post("/user-orders", accessTokenMiddleware, async (req, res) => {
   res.json(response);
 });
 
-router.post("/user-order/:orderId", accessTokenMiddleware, async (req, res) => {
+router.get("/user-order/:orderId", accessTokenMiddleware, async (req, res) => {
   const data = {
-    orderId: req.params.id,
+    orderId: req.params.orderId,
   };
   const response = await req.app.locals.rpcClient.send(ORDER_QUEUE, {
     action: "GET_ONE_USER_ORDER",
@@ -83,7 +83,7 @@ router.get("/review/:id", accessTokenMiddleware, async (req, res) => {
   res.json(response);
 });
 
-router.get("/review/:id", accessTokenMiddleware, async (req, res) => {
+router.get("/review", accessTokenMiddleware, async (req, res) => {
   const data = {
     userId: req.user.id,
   };

@@ -1,6 +1,7 @@
 const Product = require("../models/Product");
 const Review = require("../models/Review");
 const { AppError } = require("../utils/errorHandler");
+const mongoose = require("mongoose");
 
 const productService = {
   createProduct: async (userId, body) => {
@@ -57,11 +58,13 @@ const productService = {
     //   .skip((page - 1) * limit)
     //   .exec();
 
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
     const products = await Product.aggregate([
       {
         $match: {
           isDeleted: false,
-          sellerId: { $ne: userId },
+          sellerId: { $ne: userObjectId },
         },
         // $or: [
         //   { name: { $regex: search, $options: "i" } },
@@ -138,7 +141,7 @@ const productService = {
 
   deleteProduct: async (productId) => {
     const deletedProduct = await Product.updateOne(
-      { _id: productId },
+      { _id: productId, isDeleted: false },
       {
         $set: {
           isDeleted: true,

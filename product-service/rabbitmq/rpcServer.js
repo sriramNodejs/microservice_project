@@ -25,11 +25,15 @@ async function createRpcServer(queueName, handler) {
 
       const errorResponse = {
         success: false,
-        message: error.isOperational ? error.message : "Internal server error",
+        message: error.message ?? "Internal server error",
       };
 
       if (error.errorCode) {
         errorResponse.errorCode = error.errorCode;
+      }
+
+      if (error.statusCode) {
+        errorResponse.statusCode = error.statusCode;
       }
 
       channel.sendToQueue(replyTo, createBufferData(errorResponse), {
