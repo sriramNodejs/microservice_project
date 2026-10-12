@@ -1,2 +1,31 @@
 Alternative for Docker -> PodMan
 
+
+
+// Redis 
+
+Redis a In memory (RAM) Stroage Storage where data can be stored in Key-value Pairs, 
+
+Demerits ?
+system crash/ power ofd and on  -> data will be lost
+
+
+AWS -> Elastic Cache 
+
+
+Redis GUI -> Redis insights 
+
+
+
+
+command used for building docker compose dev 
+
+
+docker compose -f docker-compose.yml -f docker-compose.dev.yml  up --build -d
+
+
+
+
+Test API in containers 
+
+Create EC2 Machine and then Deploy

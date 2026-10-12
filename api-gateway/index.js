@@ -10,6 +10,9 @@ const productRoutes = require("./routes/product.routes");
 const orderRoutes = require("./routes/order.routes");
 const userRoutes = require("./routes/user.routes");
 const fileUpload = require("express-fileupload");
+
+const { connectRedis } = require("./redis/redis");
+
 const path = require("path");
 
 const app = express();
@@ -28,18 +31,28 @@ app.use(
 async function start() {
   await connectRabbitMQ();
 
+  await connectRedis();
+
+  const {
+    authLimiter,
+    generalLimiter,
+    orderLimiter,
+    productLimiter,
+  } = require("./middlewares/rateLimiter");
+
   const rpcClient = await createRpcClient();
+
+  // General rate limit
+  app.use(generalLimiter);
 
   app.locals.rpcClient = rpcClient;
 
-  app.use("/product", productRoutes);
-  app.use("/auth", userRoutes);
-  app.use("/order", orderRoutes);
+  app.use("/product", productLimiter, productRoutes);
+  app.use("/auth", authLimiter, userRoutes);
+  app.use("/order", orderLimiter, orderRoutes);
 
   app.use((err, req, res, next) => {
     console.error("[API Gateway Error]", err);
-    console.log(err, "err");
-    console.log(err.statusCode, "hello");
     res.status(err.statusCode || err.status || 500).json({
       success: false,
       message: err.message ?? "internal server error",

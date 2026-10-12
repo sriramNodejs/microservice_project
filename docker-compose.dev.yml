@@ -1,0 +1,79 @@
+services:
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - ./api-gateway/.env
+    environment:
+      RABBITMQ_URI: amqp://rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+      - redis
+
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - ./product-service/.env
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/monolith_db
+      RABBITMQ_URI: amqp://rabbitmq:5672
+    volumes:
+      - ./product-service:/app
+      - /app/node_modules
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - ./user-service/.env
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/monolith_db
+      RABBITMQ_URI: amqp://rabbitmq:5672
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
+    ports:
+      - "3002:3002"
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - ./order-service/.env
+    environment:
+      MONGO_URI: mongodb://mongodb:27017/monolith_db
+      RABBITMQ_URI: amqp://rabbitmq:5672
+    volumes:
+      - ./order-service:/app
+      - /app/node_modules
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongodb
+      - rabbitmq
