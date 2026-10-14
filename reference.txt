@@ -47,3 +47,34 @@ docker compose -f docker-compose-hello.yml ps
 Test API in containers 
 
 Create EC2 Machine and then Deploy
+
+
+
+
+// EC2 -> 
+Amazon Linux
+
+package managers 
+1. apt
+2. dnf
+3. yum 
+
+
+
+
+commands to operation
+
+sudo dnf update
+sudo dnf upgrade -y
+
+
+// Insall Docker 
+
+sudo dnf install -y docker 
+
+// to start docker 
+sudo systemctl start docker
+
+// to automatically start when system will restart 
+sudo systemctl enable docker 
+
