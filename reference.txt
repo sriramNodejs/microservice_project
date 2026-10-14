@@ -19,11 +19,29 @@ Redis GUI -> Redis insights
 
 
 command used for building docker compose dev 
-
-
 docker compose -f docker-compose.yml -f docker-compose.dev.yml  up --build -d
 
+// TO See containers
+docker compose -f docker-compose.yml -f docker-compose.dev.yml  ps
 
+// to start stopped containers 
+docker compose -f docker-compose.yml -f docker-compose.dev.yml start
+
+
+
+
+
+// Notes
+in my computer i want to see all containers``
+docker ps
+
+
+you are in a folder where docker-compose.yml is there 
+docker compose ps 
+
+
+you are in a folder where docker-compose-hello.yml is there ?
+docker compose -f docker-compose-hello.yml ps 
 
 
 Test API in containers 

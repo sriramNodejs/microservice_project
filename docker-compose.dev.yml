@@ -27,7 +27,7 @@ services:
     env_file:
       - ./product-service/.env
     environment:
-      MONGO_URI: mongodb://mongodb:27017/monolith_db
+      MONGO_URI: mongodb://root:secretpassword@mongodb:27017/monolith_db?authSource=admin
       RABBITMQ_URI: amqp://rabbitmq:5672
     volumes:
       - ./product-service:/app
@@ -47,7 +47,7 @@ services:
     env_file:
       - ./user-service/.env
     environment:
-      MONGO_URI: mongodb://mongodb:27017/monolith_db
+      MONGO_URI: mongodb://root:secretpassword@mongodb:27017/monolith_db?authSource=admin
       RABBITMQ_URI: amqp://rabbitmq:5672
     volumes:
       - ./user-service:/app
@@ -67,7 +67,7 @@ services:
     env_file:
       - ./order-service/.env
     environment:
-      MONGO_URI: mongodb://mongodb:27017/monolith_db
+      MONGO_URI: mongodb://root:secretpassword@mongodb:27017/monolith_db?authSource=admin
       RABBITMQ_URI: amqp://rabbitmq:5672
     volumes:
       - ./order-service:/app
