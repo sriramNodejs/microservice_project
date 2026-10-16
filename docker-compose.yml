@@ -34,7 +34,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-
+    container_name: redis_project
     ports:
       - "6378:6379"
 
@@ -42,6 +42,12 @@ services:
       - redis_data:/data
 
     command: redis-server --appendonly yes
+    # Added Redis healthcheck so your node app can safely wait for it
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes: 
   mongo_data:

@@ -8,13 +8,16 @@ services:
     env_file:
       - ./api-gateway/.env.production
     environment:
+      # Using the container/service names from your infra file
       RABBITMQ_URL: amqp://rabbitmq:5672
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://redis_project:6379
     ports:
       - "3000:3000"
     depends_on:
-      - rabbitmq
-      - redis
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   product-service:
     build:
@@ -24,13 +27,16 @@ services:
     env_file:
       - ./product-service/.env.production
     environment:
-      MONGO_URL: mongodb://mongodb:27017/products
+      # Corrected hostname from 'mongodb' to 'mongodb_project'
+      MONGO_URL: mongodb://root:secretpassword@mongodb_project:27017/products?authSource=admin
       RABBITMQ_URL: amqp://rabbitmq:5672
     ports:
       - "3001:3001"
     depends_on:
-      - mongodb
-      - rabbitmq
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
   user-service:
     build:
@@ -40,13 +46,15 @@ services:
     env_file:
       - ./user-service/.env.production
     environment:
-      MONGO_URL: mongodb://mongodb:27017/users
+      MONGO_URL: mongodb://root:secretpassword@mongodb_project:27017/users?authSource=admin
       RABBITMQ_URL: amqp://rabbitmq:5672
     ports:
       - "3002:3002"
     depends_on:
-      - mongodb
-      - rabbitmq
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
   order-service:
     build:
@@ -56,10 +64,12 @@ services:
     env_file:
       - ./order-service/.env.production
     environment:
-      MONGO_URL: mongodb://mongodb:27017/orders
+      MONGO_URL: mongodb://root:secretpassword@mongodb_project:27017/orders?authSource=admin
       RABBITMQ_URL: amqp://rabbitmq:5672
     ports:
       - "3003:3003"
     depends_on:
-      - mongodb
-      - rabbitmq
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
