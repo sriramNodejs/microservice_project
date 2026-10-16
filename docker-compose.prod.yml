@@ -1,0 +1,65 @@
+services:
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+      target: production
+    env_file:
+      - ./api-gateway/.env.production
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      - rabbitmq
+      - redis
+
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+      target: production
+    env_file:
+      - ./product-service/.env.production
+    environment:
+      MONGO_URL: mongodb://mongodb:27017/products
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+      target: production
+    env_file:
+      - ./user-service/.env.production
+    environment:
+      MONGO_URL: mongodb://mongodb:27017/users
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    ports:
+      - "3002:3002"
+    depends_on:
+      - mongodb
+      - rabbitmq
+
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+      target: production
+    env_file:
+      - ./order-service/.env.production
+    environment:
+      MONGO_URL: mongodb://mongodb:27017/orders
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongodb
+      - rabbitmq

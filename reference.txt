@@ -64,6 +64,8 @@ package managers
 
 commands to operation
 
+sudo -> Superuser Do 
+
 sudo dnf update
 sudo dnf upgrade -y
 
@@ -91,3 +93,4 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 cat ~/.ssh/id_ed25519
 
 3. copy the key and go to github account -> top right corner (profile icon) -> settings -> ssh and gpg keys -> new ssh key -> give title and paste the key (by seeing in cat) -> save that 
+
