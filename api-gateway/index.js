@@ -31,6 +31,10 @@ app.use(
   ),
 );
 
+app.get("/health", (req, res) => {
+  res.json({ message: "healthy" });
+});
+
 async function start() {
   await connectRabbitMQ();
 
