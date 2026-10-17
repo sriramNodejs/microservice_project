@@ -17,7 +17,7 @@ async function start() {
   dbConnect();
 
   app.post(
-    "/webhook",
+    "/webhooks/stripe",
     express.raw({ type: "application/json" }),
     stripeWebhookListner,
   );
