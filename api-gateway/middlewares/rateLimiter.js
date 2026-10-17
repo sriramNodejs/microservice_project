@@ -2,7 +2,6 @@ const rateLimit = require("express-rate-limit");
 const { RedisStore } = require("rate-limit-redis");
 const { redisClient } = require("../redis/redis");
 
-
 const createLimiter = ({ windowMs, max }) => {
   return rateLimit({
     windowMs,
@@ -29,19 +28,18 @@ const generalLimiter = createLimiter({
 
 const authLimiter = createLimiter({
   windowMs: 60 * 60 * 1000,
-  max: 100,
+  max: 1000,
 });
 
 const productLimiter = createLimiter({
   windowMs: 60 * 60 * 1000,
-  max: 100,
+  max: 1000,
 });
 
 const orderLimiter = createLimiter({
-  windowMs: 60 * 1000,
-  max: 100,
+  windowMs: 60 * 60 * 1000,
+  max: 1000,
 });
-
 
 module.exports = {
   generalLimiter,

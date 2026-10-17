@@ -18,7 +18,7 @@ const path = require("path");
 const app = express();
 
 // Enable trust proxy
-app.set('trust proxy', true);
+app.set("trust proxy", true);
 
 app.use(express.json());
 
@@ -46,7 +46,7 @@ async function start() {
   const rpcClient = await createRpcClient();
 
   // General rate limit
-  app.use(generalLimiter);
+  // app.use(generalLimiter);
 
   app.locals.rpcClient = rpcClient;
 
