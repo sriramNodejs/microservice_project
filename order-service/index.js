@@ -34,18 +34,6 @@ async function start() {
     });
   });
 
-  app.get("/orders", (req, res, next) => {
-    res.send(`
-    <h1>Your orders</h1>
-`);
-  });
-
-  app.get("/cart", (req, res, next) => {
-    res.send(`
-    <h1>Your Cart here</h1>
-`);
-  });
-
   app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({

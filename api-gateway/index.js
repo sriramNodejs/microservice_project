@@ -35,6 +35,18 @@ app.get("/health", (req, res) => {
   res.json({ message: "healthy" });
 });
 
+app.get("/orders", (req, res, next) => {
+  res.send(`
+    <h1>Your orders</h1>
+`);
+});
+
+app.get("/cart", (req, res, next) => {
+  res.send(`
+    <h1>Your Cart here</h1>
+`);
+});
+
 async function start() {
   await connectRabbitMQ();
 
