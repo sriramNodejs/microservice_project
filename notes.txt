@@ -161,3 +161,29 @@ Routes -> controller -> Service -> Database -> Service -> Controller -> Response
 In MVC -> 
 Caller -> Routes -> UI (Rendering) -> Controller -> Database  -> UI(Rendering )
 
+
+
+what is Apache nginx
+
+nginx is a Reverse Proxy 
+
+
+
+your computer (instance, Linux) has so many servers -> ip address 
+
+
+3, -> 3000, 4000. 5000
+
+ip-addres:4000   -> ip-address/api -> localhost:4000
+ ip-address/api2 -> localhost:3000
+ ip-address -> localhost:5000 
+
+
+ vpn -> virtual private network -> foreward proxy -> 
+
+ you are in india -> you want to access website which is blocked in india, but not blocked in US and you are mimicking that you are in US so that you can access this website .
+
+
+ 
+
+

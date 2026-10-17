@@ -23,23 +23,23 @@ const createLimiter = ({ windowMs, max }) => {
 };
 
 const generalLimiter = createLimiter({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 60 * 60 * 1000,
   max: 100,
 });
 
 const authLimiter = createLimiter({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
+  windowMs: 60 * 60 * 1000,
+  max: 100,
 });
 
 const productLimiter = createLimiter({
-  windowMs: 60 * 1000,
-  max: 60,
+  windowMs: 60 * 60 * 1000,
+  max: 100,
 });
 
 const orderLimiter = createLimiter({
   windowMs: 60 * 1000,
-  max: 30,
+  max: 100,
 });
 
 
