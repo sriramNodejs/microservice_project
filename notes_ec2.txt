@@ -1,0 +1,497 @@
+connect to EC2
+ssh -i your-key.pem ec2-user@YOUR_EC2_IP
+
+
+sudo dnf update -y
+sudo dnf install -y docker
+
+sudo systemctl enable docker
+sudo systemctl start docker
+
+
+
+sudo usermod -aG docker ec2-user
+
+then reconnect using exit command
+
+then ssh again
+
+docker --version
+
+docker compose version
+
+
+// install docker compose 
+
+# Create the local plugin directory for your user
+mkdir -p ~/.docker/cli-plugins
+
+# Download the latest stable Docker Compose binary
+curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m)" -o ~/.docker/cli-plugins/docker-compose
+
+# Make the plugin executable
+chmod +x ~/.docker/cli-plugins/docker-compose
+
+
+// For buildex 
+mkdir -p ~/.docker/cli-plugins
+BUILDX_VERSION=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | grep -oP '"tag_name": "\K[^"]+')
+curl -Lo ~/.docker/cli-plugins/docker-buildx "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-amd64"
+chmod +x ~/.docker/cli-plugins/docker-buildx
+
+sudo dnf install git -y
+
+
+cd /opt
+sudo mkdir microservices
+sudo chown ec2-user:ec2-user microservices
+cd microservices
+
+
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git .
+
+
+Do not commit .env.production to GitHub.
+
+create .env.production in all these microservices
+
+api-gateway/.env.production
+product-service/.env.production
+user-service/.env.production
+order-service/.env.production
+
+create .env.production to these folders
+
+go to  -> cd /opt/microservices
+
+docker compose -f docker-compose.prod.yml build
+
+or 
+
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  build
+
+
+  to start everything 
+
+  docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  up -d
+
+
+check ->   docker compose ps
+
+
+for all -> docker compose logs -f
+
+gateway -> docker compose logs -f api-gateway
+
+Before configuring nginx  (check this)
+curl http://localhost:3000
+
+
+aws serurity groups 
+
+22    SSH       Your IP only
+80    HTTP      0.0.0.0/0
+443   HTTPS     0.0.0.0/0
+
+
+dont add to public inbound rules
+27017
+3000
+3001
+3002
+3003
+5672
+6379
+15672
+
+
+instead do 
+internet -> 80, 443,  -> nginx -> api gateway -> docker netework
+
+install nginx
+sudo dnf install nginx -y
+
+sudo systemctl enable nginx
+sudo systemctl start nginx
+
+check 
+sudo systemctl status nginx
+
+
+in nginx conf file 
+
+sudo nano /etc/nginx/conf.d/default.conf
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /webhooks/stripe {
+        proxy_pass http://127.0.0.1:3003;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+
+nginx type check -> sudo nginx -t
+
+reload nginx -> sudo systemctl reload nginx
+
+check 
+
+
+Deployment process
+
+npm run dev
+
+
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.dev.yml \
+  up --build
+
+
+
+Test production image locally:
+
+
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  up --build
+
+
+after that -> 
+
+push image to github
+
+git add .
+git commit -m "prepare production deployment"
+git push origin main
+
+
+in EC2
+
+git pull origin main
+
+build the image
+
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  build
+
+Deploy:
+
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  up -d
+
+
+
+check
+
+docker compose ps
+
+
+Test 
+curl https://api.example.com/health
+
+
+
+        git push
+        │
+        ▼
+        GitHub
+        │
+        ▼
+    GitHub Actions
+        │
+    ┌──────┴──────┐
+    │             │
+Build          Test
+    │             │
+    └──────┬──────┘
+        │
+        ▼
+        SSH
+        │
+        ▼
+        EC2
+        │
+        ▼
+    git pull
+        │
+        ▼
+    docker compose
+    build
+        │
+        ▼
+    docker compose
+        up -d
+
+
+
+Store the github secrets for yml 
+
+1. Go to your GitHub Repository page
+2. Click on the ⚙️ Settings tab at the top.
+3. In the left sidebar, scroll down to the Security section and click on Secrets and variables -> Actions.
+4. Click the green New repository secret button at the top right.
+5. Create three separate secrets with the exact names and values below:
+
+
+EC2_HOST	The public IPv4 address or Public DNS domain of your EC2 instance.
+EC2_USER	The default SSH username for your server instance (e.g., ubuntu for Ubuntu, ec2-user for Amazon Linux).
+EC2_SSH_KEY	The entire text content of your private key (.pem file). Make sure to include the -----BEGIN RSA PRIVATE KEY----- and -----END RSA PRIVATE KEY----- wrapper lines.
+
+
+
+
+.github/workflows/deploy.yml
+
+
+
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /opt/microservices
+
+            git pull origin main
+
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              build
+
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              up -d
+
+            docker image prune -f
+
+
+
+The command docker image prune -f is used to clean up disk space by automatically deleting all "dangling" Docker images without asking for your confirmation.
+
+
+2. -f (or --force)
+
+Normally, when you run docker image prune, Docker will stop and print a warning message asking: "WARNING! This will remove all dangling images. Are you sure you want to continue? [y/N]".
+
+
+
+in production server you have to do 
+
+
+
+nano product-service/.env.production
+nano user-service/.env.production
+nano order-service/.env.production
+
+
+For example, order-service/.env.production:
+
+NODE_ENV=production
+PORT=3003
+
+STRIPE_SECRET_KEY=your-stripe-secret
+STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
+
+
+
+
+
+
+EC2
+ │
+ ├── api-gateway/.env.production
+ ├── order-service/.env.production
+ ├── product-service/.env.production
+ └── user-service/.env.production
+             │
+             ▼
+    docker-compose.prod.yml
+             │
+             ▼
+      Docker containers
+             │
+             ▼
+   Environment variables available
+   inside each Node.js application
+
+
+
+3. Deploy using Docker Compose
+From your project root:
+
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  config
+
+
+
+This validates and renders the merged Compose configuration. Be careful: rendered output can contain secrets, so don't share or publish it.
+Then build and start:
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  up -d --build
+
+
+
+Verify the containers:
+
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  ps
+
+
+.github/
+└── workflows/
+    └── deploy.yml
+
+
+
+name: Deploy Microservices to EC2
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Add automated test steps here before deployment.
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -eu
+
+            cd /opt/microservices
+
+            echo "Pulling latest code..."
+            git pull --ff-only origin main
+
+            echo "Validating production Compose configuration..."
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              config --quiet
+
+            echo "Building production images..."
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              build
+
+            echo "Deploying services..."
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              up -d --remove-orphans
+
+            echo "Checking container status..."
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.prod.yml \
+              ps
+
+            echo "Deployment commands completed."
+
+
+
+git add .github/workflows/deploy.yml
+git commit -m "Add GitHub Actions deployment pipeline"
+git push origin main
+
+
+
+
+Then open your GitHub repository → Actions.
+You should see the deployment workflow running. Once it finishes, SSH into EC2 and verify:
+
+cd /opt/microservices
+
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  ps
+
+
+Check the gateway logs:
+
+docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prod.yml \
+  logs --tail=100 api-gateway
+
+
+  
+
+  curl -i https://api.example.com/health
